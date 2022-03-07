@@ -14,14 +14,26 @@ This should be primarily used only for reading logs and is definitely not recomm
 	Run: parseAsJSON,
 }
 
+var shouldExcludeNulls bool
+var shouldMinify bool
+
+func init() {
+	rootCmd.Flags().BoolVarP(&shouldExcludeNulls, "exclude-null", "x", false, "exclude the fields with only null value")
+	rootCmd.Flags().BoolVarP(&shouldMinify, "mini", "m", false, "minify output (i.e. remove all indents)")
+}
+
 func parseAsJSON(cmd *cobra.Command, args []string) {
 	if len(args) == 0 {
 		fmt.Printf("No input string passed\n\n")
 		cmd.Help()
 	} else {
 		lString := args[0]
-		fmt.Println(lString)
-		fmt.Println(lombokString.New(lString).ParseAsJSON())
+
+		iArgs := lombokString.InterfaceArgs{
+			ShouldExcludeNulls: shouldExcludeNulls,
+			ShouldMinify:       shouldMinify,
+		}
+		fmt.Println(lombokString.New(lString).ParseAsJSON(iArgs))
 	}
 }
 

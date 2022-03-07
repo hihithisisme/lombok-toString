@@ -18,7 +18,7 @@ var shouldExcludeNulls bool
 var shouldMinify bool
 
 func init() {
-	rootCmd.Flags().BoolVarP(&shouldExcludeNulls, "exclude-null", "x", false, "exclude the fields with only null value")
+	rootCmd.Flags().BoolVarP(&shouldExcludeNulls, "exclude-null", "x", false, "exclude the fields with null value")
 	rootCmd.Flags().BoolVarP(&shouldMinify, "mini", "m", false, "minify output (i.e. remove all indents)")
 }
 
@@ -28,6 +28,7 @@ func parseAsJSON(cmd *cobra.Command, args []string) {
 		cmd.Help()
 	} else {
 		lString := args[0]
+		fmt.Println()
 
 		iArgs := lombokString.InterfaceArgs{
 			ShouldExcludeNulls: shouldExcludeNulls,

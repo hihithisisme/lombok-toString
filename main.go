@@ -1,7 +1,7 @@
 package main
 
 import (
-	"lombok-toString/cmd"
+	"github.com/hihithisisme/lombok-toString/cmd"
 )
 
 func main() {

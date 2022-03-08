@@ -2,8 +2,8 @@ package lombokString_test
 
 import (
 	"fmt"
+	"github.com/hihithisisme/lombok-toString/pkg/lombokString"
 	"github.com/stretchr/testify/assert"
-	"lombok-toString/pkg/lombokString"
 	"testing"
 )
 

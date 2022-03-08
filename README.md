@@ -56,12 +56,25 @@ To generate a JSON version of the log, we can execute the following:
 }
 ```
 
-# Build from Source
+# Installation
 
+## `go install`
+
+If you already have `go` installed, you can use it to install the package directly as a binary.
+
+```bash
+go install github.com/hihithisisme/lombok-toString
+```
+
+## `go build`
+
+This alternative allows you to rename your executable and select exactly where to install it at (or you can use `mv`
+after `go install`)
 The following command builds from source directly into your local bin folder (which is likely to be within your PATH for
 convenience). Alternatively, you can execute it without it being in the PATH as well.
 
 ```bash
+git clone https://github.com/hihithisisme/lombok-toString.git
 go build -o /usr/local/bin/lombok
 ```
 

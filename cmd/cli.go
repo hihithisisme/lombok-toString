@@ -2,8 +2,8 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/hihithisisme/lombok-toString/pkg/lombokString"
 	"github.com/spf13/cobra"
-	"lombok-toString/pkg/lombokString"
 )
 
 var rootCmd = &cobra.Command{

@@ -5,16 +5,17 @@ import "strings"
 type Memory struct {
 	// continuedString refers to the accumulated uncommitted string
 	continuedString string
-	// TODO: can we remove fieldName and store it together with continuedString?
-	// determine at commit-time whether it is meant to be a map element -- if yes, then parse it as such
-	// fieldName holds the key name for maps since they need to be committed alongside the value
+	// fieldName holds the key for maps. Must be stored in the recursion-level Memory because value might be another LombokObject
 	fieldName string
+	// objType of LombokObject
+	objType string
 }
 
-func newMemory() *Memory {
+func newMemory(objType string) *Memory {
 	return &Memory{
 		continuedString: "",
 		fieldName:       "",
+		objType:         objType,
 	}
 }
 
@@ -23,7 +24,7 @@ func (m Memory) isPrevCharAString() bool {
 		return false
 	}
 
-	return !isSpecialCharacter(string(m.continuedString[len(m.continuedString)-1]))
+	return !isSpecialCharacter(string(m.continuedString[len(m.continuedString)-1]), &m)
 }
 
 func (m Memory) continuedStringTrimmed() string {

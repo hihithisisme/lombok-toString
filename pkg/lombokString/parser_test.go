@@ -66,7 +66,7 @@ var testCases = []testCase{
 	}, {
 		// this requirement takes the assumption that fieldNames and classNames don't have special characters
 		subtestName: "Handle special characters reasonably",
-		lString:     "ShippingLogUpdate(attempt=ShippingAttempt(id=182501, session=OrderSesseon(id=158171, address=Address(line1=City Square, postCode=S(112300)), createdAt=2022-03-04T09:08:21.052Z, quantity=4, shipperDescription=null, updatedAt=2022-03-04 03:08:21.055), paymentMethod=INHOUSE), transactionStatusEvent=TransactionStatusEvent(data=TransactionStatusEvent.TransactionStatus(transactionRef=ba9d5206-28de-43ec-bd6f-dadfcb5ef890-158171-182501, status=SUCCESS, orderRef=e4223595/829f/4b2d/be49/a3fb4f9b8044, encoding=YXNkZndlcndlcndlcg==, transactionDescription=null)))",
+		lString:     "ShippingLogUpdate(attempt=ShippingAttempt(id=182501, session=OrderSesseon(id=158171, address=Address(line1=City Square, postCode=S(112300)), createdAt=2022-03-04T09:08:21.052Z, quantity=4, shipperDescription=null, updatedAt=2022-03-04 03:08:21.055), paymentMethod=INHOUSE), transactionStatusEvent=TransactionStatusEvent(data=TransactionStatusEvent.TransactionStatus(transactionRef=ba9d5206-28de-43ec-bd6f-dadfcb5ef890-158171-182501, status=SUCCESS, orderRef=e4223595/829f/4b2d/be49/a3fb4f9b8044, encoding=encode=YXNkZndlcndlcndlcg==, transactionDescription=null)))",
 		shouldContains: []string{
 			`"orderRef": "e4223595/829f/4b2d/be49/a3fb4f9b8044"`,
 			`"line1": "City Square"`,
@@ -75,7 +75,7 @@ var testCases = []testCase{
 			`"createdAt": "2022-03-04T09:08:21.052Z"`,
 			`"quantity": 4`,
 			`"shipperDescription": null`,
-			//`"encoding": "YXNkZndlcndlcndlcg=="`,
+			`"encoding": "encode=YXNkZndlcndlcndlcg=="`,
 		},
 	},
 }

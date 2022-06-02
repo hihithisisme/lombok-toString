@@ -53,14 +53,29 @@ var testCases = []testCase{
 		},
 	}, {
 		subtestName: "Nested 3 Levels",
-		lString:     "ShippingLogUpdate(attempt=ShippingAttempt(id=182501, session=OrderSession(id=158171, customerRef=ba9d5206-28de-43ec-bd6f-dadfcb5ef890, orderRef=ba9d5206-28de-43ec-bd6f-dadfcb5ef890, shopperName=Jon Snow White, currency=CHF, amount=100.0100, notes=For the Seven Dwarves, description=null, createdAt=2022-03-04T09:08:21.052Z, quantity=4, shipperDescription=null, address=Session.Address(address1=City Square, address2=, city=Singapore, state=, postalCode=810390, country=SG), enableDarkMode=false, status=SHIPPING, updatedAt=2022-03-04 03:08:21.055), paymentMethod=INHOUSE, status=SUCCESS, paymentRef=e4223595-829f-4b2d-be49-a3fb4f9b8044, created=2022-03-04 03:06:44.0, updated=2022-03-04 03:08:21.053), transactionStatusEvent=TransactionStatusEvent(data=TransactionStatusEvent.TransactionStatus(transactionRef=ba9d5206-28de-43ec-bd6f-dadfcb5ef890-158171-182501, status=SUCCESS, orderRef=e4223595-829f-4b2d-be49-a3fb4f9b8044, transactionDescription=null, paymentProvider=BANK)))",
+		lString:     "ShippingLogUpdate(attempt=ShippingAttempt(id=182501, session=OrderSession(id=158171, customerRef=ba9d5206-28de-43ec-bd6f-dadfcb5ef890, orderRef=ba9d5206-28de-43ec-bd6f-dadfcb5ef890, shopperName=Jon Snow White, currency=CHF, amount=100.0100, notes=For the Seven Dwarves, description=null, createdAt=2022-03-04T09:08:21.052Z, quantity=4, shipperDescription=null, address=Session.Address(address1=City Square, address2=, city=Singapore, state=, postalCode=810390, country=SG), enableDarkMode=false, status=SHIPPING, updatedAt=2022-03-04 03:08:21.055), paymentMethod=INHOUSE, status=SUCCESS, paymentRef=e4223595-829f-4b2d-be49-a3fb4f9b8044, created=2022-03-04 03:06:44.0, updated=2022-03-04 03:08:21.053), transactionStatusEvent=TransactionStatusEvent(data=TransactionStatusEvent.TransactionStatus(transactionRef=ba9d5206-28de-43ec-bd6f-dadfcb5ef890-158171-182501, status=SUCCESS, orderRef=e4223595/829f/4b2d/be49/a3fb4f9b8044, transactionDescription=null, paymentProvider=BANK)))",
 		shouldContains: []string{
 			`"transactionRef": "ba9d5206-28de-43ec-bd6f-dadfcb5ef890-158171-182501"`,
+			`"orderRef": "e4223595/829f/4b2d/be49/a3fb4f9b8044"`,
 			`"address1": "City Square"`,
 			`"updatedAt": "2022-03-04 03:08:21.055`,
 			`"updated": "2022-03-04 03:08:21.053"`,
 			`"quantity": 4`,
 			`"description": null`,
+		},
+	}, {
+		// this requirement takes the assumption that fieldNames and classNames don't have special characters
+		subtestName: "Handle special characters reasonably",
+		lString:     "ShippingLogUpdate(attempt=ShippingAttempt(id=182501, session=OrderSesseon(id=158171, address=Address(line1=City Square, postCode=S(112300)), createdAt=2022-03-04T09:08:21.052Z, quantity=4, shipperDescription=null, updatedAt=2022-03-04 03:08:21.055), paymentMethod=INHOUSE), transactionStatusEvent=TransactionStatusEvent(data=TransactionStatusEvent.TransactionStatus(transactionRef=ba9d5206-28de-43ec-bd6f-dadfcb5ef890-158171-182501, status=SUCCESS, orderRef=e4223595/829f/4b2d/be49/a3fb4f9b8044, encoding=YXNkZndlcndlcndlcg==, transactionDescription=null)))",
+		shouldContains: []string{
+			`"orderRef": "e4223595/829f/4b2d/be49/a3fb4f9b8044"`,
+			`"line1": "City Square"`,
+			`"postCode": "S(112300)"`,
+			`"updatedAt": "2022-03-04 03:08:21.055`,
+			`"createdAt": "2022-03-04T09:08:21.052Z"`,
+			`"quantity": 4`,
+			`"shipperDescription": null`,
+			`"encoding": "YXNkZndlcndlcndlcg=="`,
 		},
 	},
 }
@@ -121,7 +136,7 @@ func TestParseLombokStringAsJSON_WithExcludeNulls(t *testing.T) {
 func TestParseLombokStringAsJSON_WithMinify(t *testing.T) {
 	tc := testCase{
 		subtestName: "should minify output",
-		lString:     "ShippingLogUpdate(attempt=ShippingAttempt(id=182501, session=OrderSession(id=158171, customerRef=ba9d5206-28de-43ec-bd6f-dadfcb5ef890, orderRef=ba9d5206-28de-43ec-bd6f-dadfcb5ef890, shopperName=Jon Snow White, currency=CHF, amount=100.0100, notes=For the Seven Dwarves, description=null, createdAt=2022-03-04T09:08:21.052Z, quantity=4, shipperDescription=null, address=Session.Address(address1=City Square, address2=, city=Singapore, state=, postalCode=810390, country=SG), enableDarkMode=false, status=SHIPPING, updatedAt=2022-03-04 03:08:21.055), paymentMethod=INHOUSE, status=SUCCESS, paymentRef=e4223595-829f-4b2d-be49-a3fb4f9b8044, created=2022-03-04 03:06:44.0, updated=2022-03-04 03:08:21.053), transactionStatusEvent=TransactionStatusEvent(data=TransactionStatusEvent.TransactionStatus(transactionRef=ba9d5206-28de-43ec-bd6f-dadfcb5ef890-158171-182501, status=SUCCESS, orderRef=e4223595-829f-4b2d-be49-a3fb4f9b8044, transactionDescription=null, paymentProvider=BANK)))",
+		lString:     "ShippingLogUpdate(attempt=ShippingAttempt(id=182501, session=OrderSession(id=158171, customerRef=ba9d5206-28de-43ec-bd6f-dadfcb5ef890, orderRef=ba9d5206-28de-43ec-bd6f-dadfcb5ef890, shopperName=Jon Snow White, currency=CHF, amount=100.0100, notes=For the Seven Dwarves, description=null, createdAt=2022-03-04T09:08:21.052Z, quantity=4, shipperDescription=null, address=Session.Address(address1=City Square, address2=, city=Singapore, state=, postalCode=810390, country=SG), enableDarkMode=false, status=SHIPPING, updatedAt=2022-03-04 03:08:21.055), paymentMethod=INHOUSE, status=SUCCESS, paymentRef=e4223595-829f-4b2d-be49-a3fb4f9b8044, created=2022-03-04 03:06:44.0, updated=2022-03-04 03:08:21.053), transactionStatusEvent=TransactionStatusEvent(data=TransactionStatusEvent.TransactionStatus(transactionRef=ba9d5206-28de-43ec-bd6f-dadfcb5ef890-158171-182501, status=SUCCESS, transactionDescription=null, paymentProvider=BANK)))",
 		shouldContains: []string{
 			`"transactionRef":"ba9d5206-28de-43ec-bd6f-dadfcb5ef890-158171-182501"`,
 			`"address1":"City Square"`,
@@ -142,3 +157,20 @@ func TestParseLombokStringAsJSON_WithMinify(t *testing.T) {
 	assert.NotContains(t, actual, "  ")
 	assert.NotContains(t, actual, "\t")
 }
+
+// TODO: failing test
+//func TestLombokString_ParseAsJSON_WithBigInteger(t *testing.T) {
+//	tc := testCase{
+//		subtestName: "should handle big Integers",
+//		lString:     "SequenceNumber(SequenceNumber=18868319742415087872)",
+//		shouldContains: []string{
+//			`"SequenceNumber": 18868319742415087872`,
+//		},
+//	}
+//
+//	actual := lombokString.New(tc.lString).ParseAsJSON(lombokString.InterfaceArgs{})
+//
+//	for _, substring := range tc.shouldContains {
+//		assert.Contains(t, actual, substring)
+//	}
+//}

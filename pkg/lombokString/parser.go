@@ -16,10 +16,10 @@ func (ls LombokString) recursiveParse(index int, history InfoFromPrevRecursionLa
 		currentChar := string(ls.LString[i])
 
 		if isOpenBrackets(currentChar) {
-			if iTemp, o := ls.handleOpenBracket(i, result, memory); o != nil {
-				return o, iTemp
+			if contIndex, o := ls.handleOpenBracket(i, result, memory); o != nil {
+				return o, contIndex
 			} else {
-				i = iTemp
+				i = contIndex
 			}
 		} else if isCloseBrackets(currentChar) {
 			if history.openBracket == "" || !isMatchingBrackets(history.openBracket, currentChar) {
@@ -46,7 +46,6 @@ func (ls LombokString) recursiveParse(index int, history InfoFromPrevRecursionLa
 			ls.handleEndOfText(memory)
 		}
 	}
-
 	return result, len(ls.LString)
 }
 
@@ -95,8 +94,9 @@ func (ls LombokString) commitElementIntoResult(result *LombokObject, memory *Mem
 	}
 }
 
+// TODO: handle scenario whereby we might want to register = and , as non-special characters
 func isSpecialCharacter(char string) bool {
-	specialChars := `[](){}=,\"`
+	specialChars := `[](){}=,`
 	for _, c := range specialChars {
 		if char == string(c) {
 			return true

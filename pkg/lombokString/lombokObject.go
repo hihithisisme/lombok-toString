@@ -14,6 +14,7 @@ func isCloseBrackets(s string) bool {
 	return s == closeSquare || s == closeRound
 }
 
+// TODO: handle scenario whereby LombokObject is only string -- should convert LombokObject to string
 type LombokObject struct {
 	objType   string
 	tempMap   *map[string]interface{}

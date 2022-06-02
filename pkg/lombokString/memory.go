@@ -3,7 +3,6 @@ package lombokString
 import "strings"
 
 type Memory struct {
-	isPrevCharAString bool
 	// continuedString refers to the accumulated uncommitted string
 	continuedString string
 	// TODO: can we remove fieldName and store it together with continuedString?
@@ -14,10 +13,17 @@ type Memory struct {
 
 func newMemory() *Memory {
 	return &Memory{
-		isPrevCharAString: false,
-		continuedString:   "",
-		fieldName:         "",
+		continuedString: "",
+		fieldName:       "",
 	}
+}
+
+func (m Memory) isPrevCharAString() bool {
+	if m.continuedString == "" {
+		return false
+	}
+
+	return !isSpecialCharacter(string(m.continuedString[len(m.continuedString)-1]))
 }
 
 func (m Memory) continuedStringTrimmed() string {

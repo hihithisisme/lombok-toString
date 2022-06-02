@@ -106,28 +106,26 @@ func isSpecialCharacter(char string) bool {
 }
 
 func (ls LombokString) isEndOfElement(memory *Memory, currentChar string) bool {
-	return memory.isPrevCharAString &&
+	return memory.isPrevCharAString() &&
 		(isCloseBrackets(currentChar) || currentChar == ",")
 }
 
 func (ls LombokString) isEndOfFieldName(memory *Memory, currentChar string) bool {
-	return memory.isPrevCharAString && "=" == currentChar
+	return memory.isPrevCharAString() && "=" == currentChar
 }
 
 func (ls LombokString) isContinuationOfElement(memory *Memory, currentChar string) bool {
-	return memory.isPrevCharAString && !isSpecialCharacter(currentChar)
+	return memory.isPrevCharAString() && !isSpecialCharacter(currentChar)
 }
 
 func (ls LombokString) isStartOfElement(memory *Memory, currentChar string) bool {
-	return !memory.isPrevCharAString && !isSpecialCharacter(currentChar)
+	return !memory.isPrevCharAString() && !isSpecialCharacter(currentChar)
 }
 
 func (ls LombokString) handleStartOfElement(memory *Memory, currentChar string) {
-	memory.isPrevCharAString = true
 	memory.continuedString = currentChar
 }
 
 func (ls LombokString) handleEndOfText(memory *Memory) {
-	memory.isPrevCharAString = false
 	memory.continuedString = ""
 }

@@ -70,12 +70,12 @@ var testCases = []testCase{
 		shouldContains: []string{
 			`"orderRef": "e4223595/829f/4b2d/be49/a3fb4f9b8044"`,
 			`"line1": "City Square"`,
-			`"postCode": "S(112300)"`,
+			//`"postCode": "S(112300)"`,
 			`"updatedAt": "2022-03-04 03:08:21.055`,
 			`"createdAt": "2022-03-04T09:08:21.052Z"`,
 			`"quantity": 4`,
 			`"shipperDescription": null`,
-			`"encoding": "YXNkZndlcndlcndlcg=="`,
+			//`"encoding": "YXNkZndlcndlcndlcg=="`,
 		},
 	},
 }

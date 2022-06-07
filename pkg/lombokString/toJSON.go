@@ -40,12 +40,16 @@ func extractOnlyJSONObject(o interface{}, args InterfaceArgs) interface{} {
 	if !ok {
 		panic("there is an object that is neither string or LombokObject :/")
 	}
-	if lo.objType == "object" {
+
+	switch lo.objType {
+	case "object":
 		m := handleObject(lo, args)
 		return m
-	} else if lo.objType == "array" {
+	case "array":
 		a := handleArray(lo, args)
 		return a
+	case "string":
+		panic("should not have string here")
 	}
 	return nil
 }

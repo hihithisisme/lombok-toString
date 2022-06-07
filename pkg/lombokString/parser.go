@@ -1,5 +1,9 @@
 package lombokString
 
+import (
+	"fmt"
+)
+
 type LombokString struct {
 	LString string
 }
@@ -72,6 +76,12 @@ func (ls LombokString) handleOpenBracket(index int, result *LombokObject, memory
 
 	lombokObject, toContinueIndex = ls.recursiveParse(index+1, nextLayerHistory)
 
+	if lombokObject.objType == "string" {
+		memory.continuedString += lombokObject.tempString
+		fmt.Println(memory.continuedString)
+		return toContinueIndex, nil
+	}
+
 	switch result.objType {
 	case "none":
 		return toContinueIndex, lombokObject
@@ -94,13 +104,19 @@ func (ls LombokString) handleCloseBracket(result *LombokObject, memory *Memory, 
 func (ls LombokString) commitElementIntoResult(result *LombokObject, memory *Memory, tempMemory *Memory) {
 	if result.objType == "array" && memory.continuedString != "" {
 		*result.tempArr = append(*result.tempArr, memory.continuedStringTrimmed())
-	} else if result.objType != "array" && memory.fieldName != "" {
-		(*result.tempMap)[memory.fieldName] = memory.continuedStringTrimmed()
-		tempMemory.fieldName = ""
+	} else if result.objType == "object" {
+		if memory.fieldName == "" && memory.continuedStringTrimmed() != "" {
+			result.objType = "string"
+			result.tempString = fmt.Sprintf("(%s)", memory.continuedString)
+		} else if memory.fieldName != "" {
+			(*result.tempMap)[memory.fieldName] = memory.continuedStringTrimmed()
+			tempMemory.fieldName = ""
+		}
 	}
 }
 
-// TODO: handle scenario whereby we might want to register = and , as non-special characters
+// NOTE: we cannot handle , as non-special character even if it appears as a class field value for now
+// Will require a pointer backwards to the previous fieldName/fieldValue to be feasible
 func isSpecialCharacter(char string, memory *Memory) bool {
 	specialCharacters := `[](),`
 	for _, c := range specialCharacters {

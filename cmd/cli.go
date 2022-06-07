@@ -34,7 +34,8 @@ func parseAsJSON(cmd *cobra.Command, args []string) {
 			ShouldExcludeNulls: shouldExcludeNulls,
 			ShouldMinify:       shouldMinify,
 		}
-		fmt.Println(lombokString.New(lString).ParseAsJSON(iArgs))
+		fmt.Println(lString, iArgs)
+		//fmt.Println(lombokString.New(lString).ParseAsJSON(iArgs))
 	}
 }
 

@@ -1,167 +1,32 @@
 package lombokString
 
-import (
-	"fmt"
-)
+import "strings"
 
-type LombokString struct {
-	LString string
-}
-
-func New(lombokString string) *LombokString {
-	return &LombokString{LString: lombokString}
-}
-
-func (ls LombokString) recursiveParse(index int, history InfoFromPrevRecursionLayer) (result *LombokObject, toContinueIndex int) {
-	result = newLombokObject(history)
-	memory := newMemory(result.objType)
-
-	for i := index; i < len(ls.LString); i++ {
-		var tmpMem Memory
-		tmpMem = *memory
-		tempMemory := &tmpMem
-
-		currentChar := string(ls.LString[i])
-
-		if isOpenBrackets(currentChar) {
-			if contIndex, o := ls.handleOpenBracket(i, result, memory, tempMemory); o != nil {
-				return o, contIndex
-			} else {
-				i = contIndex
-			}
-		} else if isCloseBrackets(currentChar) {
-			if history.openBracket == "" || !isMatchingBrackets(history.openBracket, currentChar) {
-				panic("The inputted string has an invalid structure. Please check that you have copied the entire string.")
-			}
-
-			ls.handleCloseBracket(result, memory, tempMemory)
-			return result, i
-		}
-
-		if isEndOfElement(memory, currentChar) {
-			ls.commitElementIntoResult(result, memory, tempMemory)
-		} else if isEndOfFieldName(memory, currentChar) {
-			tempMemory.fieldName = memory.continuedStringTrimmed()
-		}
-
-		if isContinuationOfElement(memory, currentChar) {
-			tempMemory.continuedString = memory.continuedString + currentChar
-		} else if isStartOfElement(memory, currentChar) {
-			handleStartOfElement(tempMemory, currentChar)
-		}
-
-		if isSpecialCharacter(currentChar, memory) {
-			handleEndOfText(tempMemory)
-		}
-
-		memory = tempMemory
-	}
-	return result, len(ls.LString)
-}
-
-func isMatchingBrackets(openBracket string, currentChar string) bool {
-	return (openBracket == openRound && currentChar == closeRound) || (openBracket == openSquare && currentChar == closeSquare)
-}
-
-func (ls LombokString) handleOpenBracket(index int, result *LombokObject, memory *Memory, tempMemory *Memory) (toContinueIndex int, lombokObject *LombokObject) {
-	currentChar := string(ls.LString[index])
-	className := ""
-	if openRound == currentChar {
-		className = memory.continuedStringTrimmed()
-	}
-	nextLayerHistory := InfoFromPrevRecursionLayer{
-		openBracket: currentChar,
-		className:   className,
-	}
-
-	lombokObject, toContinueIndex = ls.recursiveParse(index+1, nextLayerHistory)
-
-	if lombokObject.objType == "string" {
-		memory.continuedString += lombokObject.tempString
-		fmt.Println(memory.continuedString)
-		return toContinueIndex, nil
-	}
-
-	switch result.objType {
-	case "none":
-		return toContinueIndex, lombokObject
-	case "object":
-		(*result.tempMap)[memory.fieldName] = lombokObject
-		break
-	case "array":
-		*result.tempArr = append(*result.tempArr, lombokObject)
-		break
-	}
-
-	tempMemory.fieldName = ""
-	return toContinueIndex, nil
-}
-
-func (ls LombokString) handleCloseBracket(result *LombokObject, memory *Memory, tempMemory *Memory) {
-	ls.commitElementIntoResult(result, memory, tempMemory)
-}
-
-func (ls LombokString) commitElementIntoResult(result *LombokObject, memory *Memory, tempMemory *Memory) {
-	if result.objType == "array" && memory.continuedString != "" {
-		*result.tempArr = append(*result.tempArr, memory.continuedStringTrimmed())
-	} else if result.objType == "object" {
-		if memory.fieldName == "" && memory.continuedStringTrimmed() != "" {
-			result.objType = "string"
-			result.tempString = fmt.Sprintf("(%s)", memory.continuedString)
-		} else if memory.fieldName != "" {
-			(*result.tempMap)[memory.fieldName] = memory.continuedStringTrimmed()
-			tempMemory.fieldName = ""
-		}
-	}
-}
-
-// NOTE: we cannot handle , as non-special character even if it appears as a class field value for now
-// Will require a pointer backwards to the previous fieldName/fieldValue to be feasible
-func isSpecialCharacter(char string, memory *Memory) bool {
-	specialCharacters := `[](),`
-	for _, c := range specialCharacters {
-		if char == string(c) {
-			return true
+func SegmentByBrackets(in string) []string {
+	fields := []string{}
+	pointer := 0
+	for i, char := range in {
+		if char == '[' || char == '(' {
+			fields = append(fields, in[pointer:i])
+			pointer = i
+		} else if char == ']' || char == ')' {
+			fields = append(fields, in[pointer:i+1])
+			pointer = i + 1
 		}
 	}
 
-	if char == "=" {
-		return shouldEqualSignBeSpecial(memory)
+	if fields[0] == "" {
+		fields = fields[1:]
 	}
-	return false
-}
 
-func shouldEqualSignBeSpecial(memory *Memory) bool {
-	if memory.objType == "array" {
-		return false
-	} else if memory.objType == "object" && memory.fieldName != "" {
-		return false
-	} else {
-		return true
+	for i, field := range fields {
+		field = strings.TrimSpace(field)
+		if field[0] == ',' {
+			fields[i-1] = fields[i-1] + ","
+			field = strings.TrimSpace(field[1:])
+		}
+		fields[i] = field
 	}
-}
 
-func isEndOfElement(memory *Memory, currentChar string) bool {
-	return memory.isPrevCharAString() &&
-		(isCloseBrackets(currentChar) || currentChar == ",")
-}
-
-func isEndOfFieldName(memory *Memory, currentChar string) bool {
-	return memory.isPrevCharAString() && "=" == currentChar && shouldEqualSignBeSpecial(memory)
-}
-
-func isContinuationOfElement(memory *Memory, currentChar string) bool {
-	return memory.isPrevCharAString() && !isSpecialCharacter(currentChar, memory)
-}
-
-func isStartOfElement(memory *Memory, currentChar string) bool {
-	return !memory.isPrevCharAString() && !isSpecialCharacter(currentChar, memory)
-}
-
-func handleStartOfElement(memory *Memory, currentChar string) {
-	memory.continuedString = currentChar
-}
-
-func handleEndOfText(memory *Memory) {
-	memory.continuedString = ""
+	return fields
 }

@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/hihithisisme/lombok-toString/pkg/lombokString"
+	"github.com/hihithisisme/lombok-toString/pkg/parser"
 	"github.com/spf13/cobra"
 )
 
@@ -30,12 +30,13 @@ func parseAsJSON(cmd *cobra.Command, args []string) {
 		lString := args[0]
 		fmt.Println()
 
-		iArgs := lombokString.InterfaceArgs{
+		args := parser.InterfaceArgs{
 			ShouldExcludeNulls: shouldExcludeNulls,
 			ShouldMinify:       shouldMinify,
 		}
-		fmt.Println(lString, iArgs)
-		//fmt.Println(lombokString.New(lString).ParseAsJSON(iArgs))
+		obj := parser.Process(parser.SegmentByBrackets(lString))
+		actual := parser.ParseAsJSON(obj, args)
+		fmt.Println(actual)
 	}
 }
 
